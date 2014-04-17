@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>INLS 541 Final</title>
+
+    <meta charset="UTF-8">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/dc.css"/>
+</head>
+<style>
+    ._4{
+        width: 150px;
+    }
+</style>
+<body>
+
+<div class="container">
+
+    <div id="us-chart">
+        <strong>OSHA Reported Deaths by State (color: total number of deaths)</strong>
+        <a class="reset" href="javascript:usChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+        <span class="reset" style="display: none;"> | Current filter: <span class="filter"></span></span>
+
+        <div class="clearfix"></div>
+    </div>
+
+    <!--<div class="clearfix"></div>
+
+    <div id="industry-chart">
+        <strong>By Industries</strong> (y: number of deals, x: total amount raised in millions, radius: amount raised)
+        <a class="reset" href="javascript:industryChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>-->
+    
+    <div id="data-table" class="dc-data-table">
+        <!-- create a custom header -->
+        <div class="header">
+            <span>Date</span>
+            <span>Location</span>
+            <span>Description</span>
+            <span>Type</span>
+            <span>Map</span>
+        </div>
+        <!-- data rows will filled in here -->
+    </div>
+
+    <div>
+        <a href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
+    </div>
+
+</div>
+
+<script type="text/javascript" src="js/d3.js"></script>
+<script type="text/javascript" src="js/crossfilter.js"></script>
+<script type="text/javascript" src="js/dc.js"></script>
+<script type="text/javascript">
+    //var numberFormat = d3.format(".2f");
+
+    var usChart = dc.geoChoroplethChart("#us-chart");
+    //var industryChart = dc.bubbleChart("#industry-chart");
+
+    d3.csv("data/all.csv", function (csv) {
+        
+        var dateFormat = d3.time.format("%m/%d/%Y");
+        
+        /*csv.forEach(function (d) {
+            d.dd = dateFormat.parse(d.date);
+            console.log(d.dd);
+            d.month = d3.time.month(d.dd); // pre-calculate month for better performance
+            d.close = +d.close; // coerce to number
+            d.open = +d.open;
+        });*/
+        
+        var data = crossfilter(csv);
+        var all = data.groupAll();
+
+        var states = data.dimension(function (d) {
+            return d["State"];
+        });
+        var stateNumberSum = states.group().reduceSum(function (d) {
+            return d["Number"];
+        });
+        
+        /*var yearlyDimension = data.dimension(function (d) {
+            return d3.time.year(dateFormat.parse(d["Date"])).getFullYear();
+        });*/
+        
+        var dateDimension = data.dimension(function (d) {
+            dateFormat.parse(d["Date"]);
+        });
+        
+
+        d3.json("geo/us-states.json", function (statesJson) {
+            usChart.width(990)
+                    .height(500)
+                    .dimension(states)
+                    .group(stateNumberSum)
+                    .colors(d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+                    .colorDomain([0, 200])
+                    .colorCalculator(function (d) { return d ? usChart.colors()(d) : '#ccc'; })
+                    .overlayGeoJson(statesJson.features, "state", function (d) {
+                        return d.properties.name;
+                    })
+                    .title(function (d) {
+                        return "State: " + d.key + "\nTotal Deaths: " + d.value;
+                    });
+        
+        dc.dataTable(".dc-data-table")
+            .dimension(dateDimension)
+            .group(function (d) {
+                var format = d3.format("02d");
+                //return d["Date"];
+                return dateFormat.parse(d["Date"]).getFullYear() + "/" + format((dateFormat.parse(d["Date"]).getMonth() + 1));
+            })
+            .size(20) // (optional) max number of records to be shown, :default = 25
+            .columns([
+                function (d) {
+                    return d["Date"];
+                },
+                function (d) {
+                    return d["Address"];
+                },
+                function (d) {
+                    return d["Description"];
+                },
+                function (d) {
+                    return d["Type"];
+                },
+                function (d) {
+                    //return d["Latitude"];
+                    return "<img src='http://maps.googleapis.com/maps/api/staticmap?center=" + d["Latitude"] + "," + d["Longitude"] + "&zoom=4&size=150x75&maptype=roadmap&style=feature:road|visibility:on|color:0xc8c8c6&style=feature:poi|element:geometry|visibility:off&style=feature:road|element:labels.icon|visibility:off&style=element:geometry.stroke|color:0x808080|weight:0.8&style=feature:landscape.natural|visibility:simplified|color:0xececed&markers=size:tiny%7Ccolor:0xBA0D0D%7C" + d["Latitude"] + "," + d["Longitude"] + "&sensor=false' />"
+                }
+            ])
+            /*.sortBy(function (d) {
+                return d["Date"];
+            })*/
+            .order(d3.descending)
+            /*.renderlet(function (table) {
+                table.selectAll(".dc-table-group").classed("info", true);
+            });*/
+
+
+            dc.renderAll();
+        });
+    });
+</script>
+
+</body>
+</html>
