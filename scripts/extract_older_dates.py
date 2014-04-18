@@ -3,7 +3,7 @@ import csv
 import re
 
 f=open(raw_input('Output file: '),'w')
-with open('../data/FatalitiesFY10.csv', 'rU') as csvfile:
+with open('../data/FY12_b.csv', 'rU') as csvfile:
     fp = csv.reader(csvfile, delimiter=',', quotechar='"')
     for row in fp:
         date = row[2]
@@ -22,8 +22,10 @@ with open('../data/FatalitiesFY10.csv', 'rU') as csvfile:
                 new_coords = str(latitude), str(longitude)
                 lat_coords = str(latitude)
                 long_coords = str(longitude)
+                lat_coords = "--"
+                long_coords = "--"
                 
-                csv_row = state + ',' + date + ',"' + place + '",' + description + ',' + incident_type + ',' + lat_coords + ',' + long_coords
+                csv_row = state + ',' + date + ',"' + place + '","' + description + '",' + incident_type + ',' + lat_coords + ',' + long_coords
                 print csv_row
                 
             except:
@@ -31,7 +33,7 @@ with open('../data/FatalitiesFY10.csv', 'rU') as csvfile:
                 lat_coords = "--"
                 long_coords = "--"
             
-                csv_row = state + ',' + date + ',"' + place + '",' + description + ',' + incident_type + ',' + lat_coords + ',' + long_coords
+                csv_row = state + ',' + date + ',"' + place + '","' + description + '",' + incident_type + ',' + lat_coords + ',' + long_coords
                 #csv_row = state + ',' + date + ',"' + place + '",' + description + ',' + incident_type 
                 print csv_row
                     
