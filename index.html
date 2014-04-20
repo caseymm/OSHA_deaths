@@ -76,13 +76,14 @@
         
         var dateFormat = d3.time.format("%m/%d/%Y");
         
-        /*csv.forEach(function (d) {
-            d.dd = dateFormat.parse(d.date);
+        csv.forEach(function (d) {
+            d.dd = dateFormat.parse(d["Date"]);
             console.log(d.dd);
-            d.month = d3.time.month(d.dd); // pre-calculate month for better performance
-            d.close = +d.close; // coerce to number
-            d.open = +d.open;
-        });*/
+            //d.month = d3.time.month(d.dd); // pre-calculate month for better performance
+            //d.close = +d.close; // coerce to number
+            //d.open = +d.open;
+        });
+        
         
         var data = crossfilter(csv);
         var all = data.groupAll();
@@ -98,8 +99,12 @@
             return d3.time.year(dateFormat.parse(d["Date"])).getFullYear();
         });*/
         
+        var yearlyDimension = data.dimension(function (d) {
+            return d3.time.year(d.dd).getFullYear();
+        });
+        
         var dateDimension = data.dimension(function (d) {
-            dateFormat.parse(d["Date"]);
+            return d.dd;
         });
         
 
