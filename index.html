@@ -35,8 +35,7 @@
         <div class="clearfix"></div>
     </div>-->
     
-    <div id="data-table" class="dc-data-table">
-        <!-- create a custom header -->
+    <!--<div id="data-table" class="dc-data-table">
         <div class="header">
             <span>Date</span>
             <span>Location</span>
@@ -44,8 +43,19 @@
             <span>Type</span>
             <span>Map</span>
         </div>
-        <!-- data rows will filled in here -->
-    </div>
+    </div>-->
+    
+    <table class="table table-hover dc-data-table">
+        <thead>
+        <tr class="header">
+            <th>Date</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Incident Type</th>
+            <th>Map</th>
+        </tr>
+        </thead>
+    </table>
 
     <div>
         <a href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
@@ -111,9 +121,10 @@
         dc.dataTable(".dc-data-table")
             .dimension(dateDimension)
             .group(function (d) {
-                var format = d3.format("02d");
-                //return d["Date"];
-                return dateFormat.parse(d["Date"]).getFullYear() + "/" + format((dateFormat.parse(d["Date"]).getMonth() + 1));
+                var format = d3.format("02d")
+                var myDate = dateFormat.parse(d["Date"])
+                return (myDate.getMonth() + 1) + "/" +  format(myDate.getFullYear());
+            
             })
             .size(20) // (optional) max number of records to be shown, :default = 25
             .columns([
@@ -134,13 +145,13 @@
                     return "<img src='http://maps.googleapis.com/maps/api/staticmap?center=" + d["Latitude"] + "," + d["Longitude"] + "&zoom=4&size=150x75&maptype=roadmap&style=feature:road|visibility:on|color:0xc8c8c6&style=feature:poi|element:geometry|visibility:off&style=feature:road|element:labels.icon|visibility:off&style=element:geometry.stroke|color:0x808080|weight:0.8&style=feature:landscape.natural|visibility:simplified|color:0xececed&markers=size:tiny%7Ccolor:0xBA0D0D%7C" + d["Latitude"] + "," + d["Longitude"] + "&sensor=false' />"
                 }
             ])
-            /*.sortBy(function (d) {
+            .sortBy(function (d) {
                 return d["Date"];
-            })*/
+            })
             .order(d3.descending)
-            /*.renderlet(function (table) {
+            .renderlet(function (table) {
                 table.selectAll(".dc-table-group").classed("info", true);
-            });*/
+            });
 
 
             dc.renderAll();
