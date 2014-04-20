@@ -25,48 +25,38 @@
 
         <div class="clearfix"></div>
     </div>
-    <!--
-    <div class="row">
-        <div id="monthly-move-chart">
-            <strong>Monthly Index Abs Move & Volume/500,000 Chart</strong>
-            <span class="reset" style="display: none;">range: <span class="filter"></span></span>
-            <a class="reset" href="javascript:moveChart.filterAll();volumeChart.filterAll();dc.redrawAll();"
-               style="display: none;">reset</a>
+
+    <!--<div class="clearfix"></div>
+
+    <div id="industry-chart">
+        <strong>By Industries</strong> (y: number of deals, x: total amount raised in millions, radius: amount raised)
+        <a class="reset" href="javascript:industryChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>-->
     
-            <div class="clearfix"></div>
+    <!--<div id="data-table" class="dc-data-table">
+        <div class="header">
+            <span>Date</span>
+            <span>Location</span>
+            <span>Description</span>
+            <span>Type</span>
+            <span>Map</span>
         </div>
-    </div>
+    </div>-->
     
-    <div class="row">
-        <div id="monthly-volume-chart">
-        </div>
-        <p class="muted pull-right" style="margin-right: 15px;">select a time range to zoom in</p>
-    </div>
-    
-    
-    <div id="test"></div>
-    -->
-    <div class="row">
-        <div>
-            <div class="dc-data-count">
-                <span class="filter-count"></span> selected out of <span class="total-count"></span> records | <a
-                    href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
-            </div>
-        </div>
-    
-        <table class="table table-hover dc-data-table">
-            <thead>
-            <tr class="header">
-                <th>Date</th>
-                <th>Location</th>
-                <th>Description</th>
-                <th>Incident Type</th>
-                <th>Map</th>
-            </tr>
-            </thead>
-        </table>
-    </div>
-    
+    <table class="table table-hover dc-data-table">
+        <thead>
+        <tr class="header">
+            <th>Date</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Incident Type</th>
+            <th>Map</th>
+        </tr>
+        </thead>
+    </table>
+
     <div>
         <a href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
     </div>
@@ -80,9 +70,7 @@
     //var numberFormat = d3.format(".2f");
 
     var usChart = dc.geoChoroplethChart("#us-chart");
-    //var chart = dc.barChart("#test");
-    //var moveChart = dc.lineChart("#monthly-move-chart");
-    //var volumeChart = dc.barChart("#monthly-volume-chart"); 
+    //var industryChart = dc.bubbleChart("#industry-chart");
 
     d3.csv("data/formatted/data_cleaned.csv", function (csv) {
         
@@ -90,13 +78,12 @@
         
         csv.forEach(function (d) {
             d.dd = dateFormat.parse(d["Date"]);
-            d.date = (d["Date"]);
             d.month = d3.time.month(d.dd); // pre-calculate month for better performance
-            //console.log(d.month);
-            d.number = d["Number"]; // coerce to number
+            console.log(d.month);
+            d.number = +d["Number"]; // coerce to number
             d.state = d["State"];
-            d.count = +d.dd;
         });
+        
         
         var data = crossfilter(csv);
         var all = data.groupAll();
@@ -104,28 +91,23 @@
         var states = data.dimension(function (d) {
             return d.state;
         });
-        
         var stateNumberSum = states.group().reduceSum(function (d) {
+            //return d["Number"];
             return d.number;
         });
         
-        var dateDimension = data.dimension(function (d) {
-            return d.date;
-            //return d.dd;
-        });
-        
-        var moveMonths = data.dimension(function (d) {
-            return d.month;
-        });
-        
-        var mine = dateDimension.group().reduceSum(function (d) {
-            //return Math.abs(d.count);
-            return d.number * d.date;
-        });
+        /*var yearlyDimension = data.dimension(function (d) {
+            return d3.time.year(dateFormat.parse(d["Date"])).getFullYear();
+        });*/
         
         var yearlyDimension = data.dimension(function (d) {
             return d3.time.year(d.dd).getFullYear();
         });
+        
+        var dateDimension = data.dimension(function (d) {
+            return d.dd;
+        });
+        
 
         d3.json("geo/us-states.json", function (statesJson) {
             usChart.width(990)
@@ -178,61 +160,7 @@
             .renderlet(function (table) {
                 table.selectAll(".dc-table-group").classed("info", true);
             });
-            
-        /*moveChart
-            .renderArea(true)
-            .width(990)
-            .height(200)
-            .transitionDuration(1000)
-            .margins({top: 30, right: 50, bottom: 25, left: 40})
-            .dimension(dateDimension)
-            .mouseZoomable(true)
-            // Specify a range chart to link the brush extent of the range with the zoom focue of the current chart.
-            //.rangeChart(volumeChart)
-            .x(d3.time.scale().domain([new Date(2008, 0, 1), new Date(2014, 11, 31)]))
-            .round(d3.time.month.round)
-            .xUnits(d3.time.months)
-            .elasticY(true)
-            .renderHorizontalGridLines(true)
-            .legend(dc.legend().x(800).y(10).itemHeight(13).gap(5))
-            .brushOn(false)
-            // Add the base layer of the stack with group. The second parameter specifies a series name for use in the legend
-            // The `.valueAccessor` will be used for the base layer
-            .group(mine, "Monthly Index Average")
-            .valueAccessor(function (d) {
-                return d.value;
-            })
-            
-            // title can be called by any stack layer.
-            .title(function (d) {
-                //var value = d.value.avg ? d.value.avg : d.value;
-                //if (isNaN(value)) value = 0;
-                return dateFormat(d.key) + "\n" + numberFormat(d.value);
-            });*/
-            
-        /*chart
-            .width(768)
-            .height(480)
-            .x(d3.time.scale().domain([new Date(2008, 0, 1), new Date(2014, 11, 31)]))
-            .brushOn(false)
-            .yAxisLabel("This is the Y Axis!")
-            .dimension(dateDimension)
-            .group(mine);
-        
-          chart.render();*/
-    /*
-        volumeChart.width(990)
-            .height(40)
-            .margins({top: 0, right: 50, bottom: 20, left: 40})
-            .dimension(moveMonths)
-            .group(dateNumberSum)
-            .centerBar(true)
-            .gap(1)
-            .x(d3.time.scale().domain([new Date(1985, 0, 1), new Date(2012, 11, 31)]))
-            .round(d3.time.month.round)
-            .alwaysUseRounding(true)
-            .xUnits(d3.time.months);
-*/
+
 
             dc.renderAll();
         });
