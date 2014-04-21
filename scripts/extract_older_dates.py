@@ -3,7 +3,7 @@ import csv
 import re
 
 f=open(raw_input('Output file: '),'w')
-with open('../data/original/FatalitiesFY10.csv', 'rU') as csvfile:
+with open('../data/original/FatalitiesFY09.csv', 'rU') as csvfile:
     fp = csv.reader(csvfile, delimiter=',', quotechar='"')
     for row in fp:
         date = row[2]

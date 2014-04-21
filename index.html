@@ -13,6 +13,22 @@
     ._4{
         width: 150px;
     }
+    circle{
+    fill: rgb(99, 75, 152);
+    }
+    .dc-chart path.line {
+    fill: none;
+    stroke-width: 1px;
+    stroke: rgb(99, 75, 152);
+    }
+    .dc-chart path.area {
+    fill-opacity: .3;
+    fill: rgb(99, 75, 152);
+    }
+    .dc-chart rect {
+    stroke: none;
+    fill: rgb(99, 75, 152);
+    }
 </style>
 <body>
 
@@ -28,7 +44,7 @@
     
     <div class="row">
         <div id="monthly-move-chart">
-            <strong>OSHA Reported Deaths by State (color: total number of deaths)</strong>
+            <strong>OSHA Reported Deaths by Year</strong>
             <span class="reset" style="display: none;">range: <span class="filter"></span></span>
             <a class="reset" href="javascript:moveChart.filterAll();volumeChart.filterAll();dc.redrawAll();"
                style="display: none;">reset</a>
@@ -77,10 +93,8 @@
 <script type="text/javascript" src="js/crossfilter.js"></script>
 <script type="text/javascript" src="js/dc.js"></script>
 <script type="text/javascript">
-    //var numberFormat = d3.format(".2f");
 
     var usChart = dc.geoChoroplethChart("#us-chart");
-    //var chart = dc.barChart("#test");
     var moveChart = dc.lineChart("#monthly-move-chart");
     var volumeChart = dc.barChart("#monthly-volume-chart"); 
 
@@ -92,8 +106,6 @@
             d.dd = dateFormat(d["Date"]);
             //d.date = (d["Date"]);
             d.date = Date.parse(d["Date"]);
-            //d.month = d3.time.month(d.dd); // pre-calculate month for better performance
-            //console.log(d.month);
             d.number = d["Number"]; // coerce to number
             d.state = d["State"];
             d.count = +d.dd;
@@ -119,10 +131,6 @@
             //return d.dd;
         });
         
-        /*var moveMonths = data.dimension(function (d) {
-            return d.month;
-        });*/
-        
         var mine = dateDimension.group().reduceSum(function (d) {
             //return Math.abs(d.count);
             return d.number;
@@ -139,8 +147,14 @@
                     .height(500)
                     .dimension(states)
                     .group(stateNumberSum)
-                    .colors(d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
-                    .colorDomain([0, 200])
+                    //blue
+                    //.colors(d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+                    //orange red
+                    //.colors(d3.scale.quantize().range(["#fff7ec","#fee8c8","#fdd49e","#fdbb84","#fc8d59","#ef6548","#d7301f","#b30000","#7f0000"]))
+                    //purple
+                    .colors(d3.scale.quantize().range(["#e5e1f0", "#d2cae5","#bfb3d9","#ac9dce","#9986c3","#856fb8","#7259ac","#634b98","#544081","#45356a"]))
+                    .colorDomain([0,550])
+                    //#ccc used when 0
                     .colorCalculator(function (d) { return d ? usChart.colors()(d) : '#ccc'; })
                     .overlayGeoJson(statesJson.features, "state", function (d) {
                         return d.properties.name;
@@ -159,10 +173,14 @@
                 return (myDate.getMonth() + 1) + "/" +  format(myDate.getFullYear());
             
             })
-            .size(20) // (optional) max number of records to be shown, :default = 25
+            .size(1000) // (optional) max number of records to be shown, :default = 25
             .columns([
                 function (d) {
-                    return d.dd;
+                    //return d.dd;
+                    var format_b = d3.format("02d")
+                    var myDate_b = d.dd;
+                    //return (myDate.getMonth() + 1) + "/" +  format(myDate.getFullYear());
+                    return (myDate_b.getMonth() + 1)+ "/"+ (myDate_b.getDay() + 1) + "/" +  format_b(myDate_b.getFullYear());
                 },
                 function (d) {
                     return d["Address"];
@@ -218,15 +236,6 @@
                 return dateFormat(d.key) + "\n" + numberFormat(d.value);
             });
             */
-        /*chart
-            .width(768)
-            .height(480)
-            .x(d3.time.scale().domain([minDate,maxDate]))
-            .brushOn(false)
-            .dimension(dateDimension)
-            .group(mine);
-        
-          chart.render();*/
     
         volumeChart.width(990)
             .height(40)
