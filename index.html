@@ -25,10 +25,10 @@
 
         <div class="clearfix"></div>
     </div>
-    <!--
+    
     <div class="row">
         <div id="monthly-move-chart">
-            <strong>Monthly Index Abs Move & Volume/500,000 Chart</strong>
+            <strong>OSHA Reported Deaths by State (color: total number of deaths)</strong>
             <span class="reset" style="display: none;">range: <span class="filter"></span></span>
             <a class="reset" href="javascript:moveChart.filterAll();volumeChart.filterAll();dc.redrawAll();"
                style="display: none;">reset</a>
@@ -42,10 +42,10 @@
         </div>
         <p class="muted pull-right" style="margin-right: 15px;">select a time range to zoom in</p>
     </div>
+        
     
+    <!--<div id="test"></div>-->
     
-    <div id="test"></div>
-    -->
     <div class="row">
         <div>
             <div class="dc-data-count">
@@ -81,17 +81,18 @@
 
     var usChart = dc.geoChoroplethChart("#us-chart");
     //var chart = dc.barChart("#test");
-    //var moveChart = dc.lineChart("#monthly-move-chart");
-    //var volumeChart = dc.barChart("#monthly-volume-chart"); 
+    var moveChart = dc.lineChart("#monthly-move-chart");
+    var volumeChart = dc.barChart("#monthly-volume-chart"); 
 
     d3.csv("data/formatted/data_cleaned.csv", function (csv) {
         
-        var dateFormat = d3.time.format("%m/%d/%Y");
+        var dateFormat = d3.time.format("%m/%d/%Y").parse;
         
         csv.forEach(function (d) {
-            d.dd = dateFormat.parse(d["Date"]);
-            d.date = (d["Date"]);
-            d.month = d3.time.month(d.dd); // pre-calculate month for better performance
+            d.dd = dateFormat(d["Date"]);
+            //d.date = (d["Date"]);
+            d.date = Date.parse(d["Date"]);
+            //d.month = d3.time.month(d.dd); // pre-calculate month for better performance
             //console.log(d.month);
             d.number = d["Number"]; // coerce to number
             d.state = d["State"];
@@ -109,19 +110,25 @@
             return d.number;
         });
         
+        var tableDateDimension = data.dimension(function (d) {
+            return d.dd;
+        });
+        
         var dateDimension = data.dimension(function (d) {
             return d.date;
             //return d.dd;
         });
         
-        var moveMonths = data.dimension(function (d) {
+        /*var moveMonths = data.dimension(function (d) {
             return d.month;
-        });
+        });*/
         
         var mine = dateDimension.group().reduceSum(function (d) {
             //return Math.abs(d.count);
-            return d.number * d.date;
+            return d.number;
         });
+        var minDate = dateDimension.bottom(1)[0].date;
+	var maxDate = dateDimension.top(1)[0].date;
         
         var yearlyDimension = data.dimension(function (d) {
             return d3.time.year(d.dd).getFullYear();
@@ -143,7 +150,7 @@
                     });
         
         dc.dataTable(".dc-data-table")
-            .dimension(dateDimension)
+            .dimension(tableDateDimension)
             .group(function (d) {
                 var format = d3.format("02d")
                 //var myDate = dateFormat.parse(d["Date"])
@@ -179,7 +186,7 @@
                 table.selectAll(".dc-table-group").classed("info", true);
             });
             
-        /*moveChart
+        moveChart
             .renderArea(true)
             .width(990)
             .height(200)
@@ -188,13 +195,14 @@
             .dimension(dateDimension)
             .mouseZoomable(true)
             // Specify a range chart to link the brush extent of the range with the zoom focue of the current chart.
-            //.rangeChart(volumeChart)
-            .x(d3.time.scale().domain([new Date(2008, 0, 1), new Date(2014, 11, 31)]))
-            .round(d3.time.month.round)
-            .xUnits(d3.time.months)
+            .rangeChart(volumeChart)
+            //.x(d3.time.scale().domain([new Date(2008, 0, 1), new Date(2014, 11, 31)]))
+            .x(d3.time.scale().domain([minDate,maxDate]))
+            //.round(d3.time.month.round)
+            //.xUnits(d3.time.months)
             .elasticY(true)
             .renderHorizontalGridLines(true)
-            .legend(dc.legend().x(800).y(10).itemHeight(13).gap(5))
+            //.legend(dc.legend().x(800).y(10).itemHeight(13).gap(5))
             .brushOn(false)
             // Add the base layer of the stack with group. The second parameter specifies a series name for use in the legend
             // The `.valueAccessor` will be used for the base layer
@@ -204,35 +212,34 @@
             })
             
             // title can be called by any stack layer.
-            .title(function (d) {
+            /*.title(function (d) {
                 //var value = d.value.avg ? d.value.avg : d.value;
                 //if (isNaN(value)) value = 0;
                 return dateFormat(d.key) + "\n" + numberFormat(d.value);
-            });*/
-            
+            });
+            */
         /*chart
             .width(768)
             .height(480)
-            .x(d3.time.scale().domain([new Date(2008, 0, 1), new Date(2014, 11, 31)]))
+            .x(d3.time.scale().domain([minDate,maxDate]))
             .brushOn(false)
-            .yAxisLabel("This is the Y Axis!")
             .dimension(dateDimension)
             .group(mine);
         
           chart.render();*/
-    /*
+    
         volumeChart.width(990)
             .height(40)
             .margins({top: 0, right: 50, bottom: 20, left: 40})
-            .dimension(moveMonths)
-            .group(dateNumberSum)
+            .dimension(dateDimension)
+            .group(mine)
             .centerBar(true)
             .gap(1)
-            .x(d3.time.scale().domain([new Date(1985, 0, 1), new Date(2012, 11, 31)]))
-            .round(d3.time.month.round)
-            .alwaysUseRounding(true)
-            .xUnits(d3.time.months);
-*/
+            .x(d3.time.scale().domain([minDate,maxDate]))
+            //.round(d3.time.month.round)
+            //.alwaysUseRounding(true)
+            //.xUnits(d3.time.months);
+
 
             dc.renderAll();
         });
