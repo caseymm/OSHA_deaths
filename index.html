@@ -37,7 +37,7 @@
       }
     .right {
         position: absolute;
-        right: 0px;
+        bottom: 0px;
       }
 </style>
 <body>
@@ -75,7 +75,7 @@
     <div class="row">
         <div>
             <div class="dc-data-count">
-                <span class="filter-count"></span> selected out of <span class="total-count"></span> records | <a
+                <span class="filter-count"></span> selected out of <span class="total-count"></span> records | <a id="testClick"
                     href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
             </div>
         </div>
@@ -98,6 +98,10 @@
     </div>
 
 </div>
+<link href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables_themeroller.css" rel="stylesheet" type="text/css" />
+<link href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" language="javascript" src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js"></script>
 
 <script type="text/javascript" src="js/d3.js"></script>
 <script type="text/javascript" src="js/crossfilter.js"></script>
@@ -106,9 +110,10 @@
 
     var usChart = dc.geoChoroplethChart("#us-chart");
     var moveChart = dc.lineChart("#monthly-move-chart");
-    var volumeChart = dc.barChart("#monthly-volume-chart"); 
+    var volumeChart = dc.barChart("#monthly-volume-chart");
 
-    d3.csv("data/formatted/data_cleaned.csv", function (csv) {
+
+    d3.csv("data/formatted/teststring.csv", function (csv) {
         
         var dateFormat = d3.time.format("%m/%d/%Y").parse;
         
@@ -173,7 +178,7 @@
                         return "State: " + d.key + "\nTotal Deaths: " + d.value;
                     });
         
-        dc.dataTable(".dc-data-table")
+        /*dc.dataTable(".dc-data-table")
             .dimension(tableDateDimension)
             .group(function (d) {
                 var format = d3.format("02d")
@@ -204,10 +209,10 @@
                 function (d) {
                     long_fix = parseFloat(d["Longitude"]) -.9;
                     lat_fix = parseFloat(d["Latitude"]) - .3;
-                    bumpedView = parseFloat(long_fix + (-6.7));
-                    bumpedView_b = parseFloat(lat_fix + (-.5));
-                    //return "<img src='http://maps.googleapis.com/maps/api/staticmap?center=" + d["Latitude"] + "," + d["Longitude"] + "&zoom=4&size=150x75&maptype=roadmap&style=feature:road|visibility:on|color:0xc8c8c6&style=feature:poi|element:geometry|visibility:off&style=feature:road|element:labels.icon|visibility:off&style=element:geometry.stroke|color:0x808080|weight:0.8&style=feature:landscape.natural|visibility:simplified|color:0xececed&markers=size:tiny%7Ccolor:0xBA0D0D%7C" + d["Latitude"] + "," + d["Longitude"] + "&sensor=false' />"
-                    return "<div class='image-cropper'><img class='right' src='http://www.mapquestapi.com/staticmap/v4/getmap?size=320,100&zoom=4&type=map&xis=www2.psd100.com%2Fppp%2F2013%2F10%2F0501%2FMap-of-the-red-pushpin-icon-1005121630.png,1,C," + lat_fix + "," + long_fix + ",&scale=6770&center=" + bumpedView_b + "," + bumpedView + "&declutter=true&imagetype=JPEG&projection=sm&key=Fmjtd%7Cluur2qa7nl%2C85%3Do5-9abx5z' /></div>"
+                    bumpedView = parseFloat(long_fix + (+1));
+                    bumpedView_b = parseFloat(lat_fix + (+1));
+                    return "<img src='http://maps.googleapis.com/maps/api/staticmap?center=" + d["Latitude"] + "," + d["Longitude"] + "&zoom=4&size=150x75&maptype=roadmap&style=feature:road|visibility:on|color:0xc8c8c6&style=feature:poi|element:geometry|visibility:off&style=feature:road|element:labels.icon|visibility:off&style=element:geometry.stroke|color:0x808080|weight:0.8&style=feature:landscape.natural|visibility:simplified|color:0xececed&markers=size:tiny%7Ccolor:0xBA0D0D%7C" + d["Latitude"] + "," + d["Longitude"] + "&sensor=false' />"
+                    //return "<div class='image-cropper'><img class='right' src='http://www.mapquestapi.com/staticmap/v4/getmap?size=150,100&zoom=4&type=map&xis=www2.psd100.com%2Fppp%2F2013%2F10%2F0501%2FMap-of-the-red-pushpin-icon-1005121630.png,1,C," + lat_fix + "," + long_fix + ",&scale=6770&center=" + bumpedView_b + "," + bumpedView + "&declutter=true&imagetype=JPEG&projection=sm&key=Fmjtd%7Cluur2qa7nl%2C85%3Do5-9abx5z' /></div><img src='http://maps.googleapis.com/maps/api/staticmap?center=" + d["Latitude"] + "," + d["Longitude"] + "&zoom=4&size=150x75&maptype=roadmap&style=feature:road|visibility:on|color:0xc8c8c6&style=feature:poi|element:geometry|visibility:off&style=feature:road|element:labels.icon|visibility:off&style=element:geometry.stroke|color:0x808080|weight:0.8&style=feature:landscape.natural|visibility:simplified|color:0xececed&markers=size:tiny%7Ccolor:0xBA0D0D%7C" + d["Latitude"] + "," + d["Longitude"] + "&sensor=false' />"
                     }
             ])
             .sortBy(function (d) {
@@ -216,7 +221,28 @@
             .order(d3.descending)
             .renderlet(function (table) {
                 table.selectAll(".dc-table-group").classed("info", true);
-            });
+            });*/
+        function RefreshTable(alldata) {
+                    datatable.fnClearTable();
+                    datatable.fnAddData(alldata);
+                    datatable.fnDraw();
+                };
+                
+        datatable = $(".dc-data-table").dataTable({
+                                
+                                "bDeferRender": true,
+                                // Restricted data in table to 2000 rows, make page load faster
+                                "aaData": tableDateDimension.top(Infinity),
+                                // allCsvData.top(Infinity),
+                                "bDestroy": true,
+                                "aoColumns": [
+                                { "mData": "Date", "sDefaultContent": " " },
+                                { "mData": "Address", "sDefaultContent": " " },
+                                { "mData": "Description", "sDefaultContent": " " },
+                                { "mData": "Type", "sDefaultContent": " " },
+                                { "mData": "Map", "sDefaultContent": " " }                                          
+                                ]
+                            });
             
         moveChart
             .renderArea(true)
@@ -262,8 +288,32 @@
             //.round(d3.time.month.round)
             //.alwaysUseRounding(true)
             //.xUnits(d3.time.months);
+        
+        usChart.on("filtered", function (chart) {
+        dc.events.trigger(function () {
+        alldata = tableDateDimension.top(Infinity);
+        RefreshTable(alldata);
+        });
+        });
 
+        moveChart.on("filtered", function (chart) {
+        dc.events.trigger(function () {
+        alldata = tableDateDimension.top(Infinity);
+        RefreshTable(alldata);
+        });
+        });
+        
+        volumeChart.on("filtered", function (chart) {
+        dc.events.trigger(function () {
+        alldata = tableDateDimension.top(Infinity);
+        RefreshTable(alldata);
+        });
+        });
 
+        document.getElementById("testClick").onclick = function (){
+        alldata = allCsvData.top(Infinity);
+        RefreshTable(alldata);
+        };
             dc.renderAll();
         });
     });
