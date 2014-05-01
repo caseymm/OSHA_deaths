@@ -8,6 +8,8 @@
 
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/dc.css"/>
+    <link href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+
 </head>
 <style>
     ._4{
@@ -39,29 +41,47 @@
         position: absolute;
         bottom: 0px;
       }
+    table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
+        background-color: #ffffff;
+    }
+    table.dataTable tr.odd {
+        background-color: #ffffff;
+    }
+    .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+        background-color: #ffffff;
+    }
+    /*.table-hover tbody tr:hover td {
+        background-color: #f5f5f5;
+    }
+    table.dataTable tr.odd:hover, table.dataTable tr.even td.sorting_1:hover {
+        background-color: #f5f5f5;
+    }*/
+    .sub{
+        margin:-10px 0px 0px 0px
+    }
 </style>
 <body>
 
 <div class="container">
 
     <div id="us-chart">
-        <strong>OSHA Reported Deaths by State (color: total number of deaths)</strong>
+        <h3>OSHA Reported Deaths by State</h3> <p class="sub">(color: total number of deaths)</p>
         <a class="reset" href="javascript:usChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
         <span class="reset" style="display: none;"> | Current filter: <span class="filter"></span></span>
 
         <div class="clearfix"></div>
     </div>
     
-    <div class="row">
+    
         <div id="monthly-move-chart">
-            <strong>OSHA Reported Deaths by Year</strong>
+            <h3>OSHA Reported Deaths by Year</h3>
             <span class="reset" style="display: none;">range: <span class="filter"></span></span>
             <a class="reset" href="javascript:moveChart.filterAll();volumeChart.filterAll();dc.redrawAll();"
                style="display: none;">reset</a>
     
             <div class="clearfix"></div>
         </div>
-    </div>
+    
     
     <div class="row">
         <div id="monthly-volume-chart">
@@ -83,7 +103,7 @@
         <table class="table table-hover dc-data-table">
             <thead>
             <tr class="header">
-                <th>Date</th>
+                <th id="inc_date">Date</th>
                 <th>Location</th>
                 <th>Description</th>
                 <th>Incident Type</th>
@@ -98,14 +118,14 @@
     </div>
 
 </div>
-<link href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables_themeroller.css" rel="stylesheet" type="text/css" />
-<link href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script type="text/javascript" language="javascript" src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js"></script>
 
 <script type="text/javascript" src="js/d3.js"></script>
 <script type="text/javascript" src="js/crossfilter.js"></script>
 <script type="text/javascript" src="js/dc.js"></script>
+<!--<script src="js/tooltips.js"></script>-->
 <script type="text/javascript">
 
     var usChart = dc.geoChoroplethChart("#us-chart");
@@ -113,7 +133,7 @@
     var volumeChart = dc.barChart("#monthly-volume-chart");
 
 
-    d3.csv("data/formatted/teststring.csv", function (csv) {
+    d3.csv("data/formatted/breakingbad.csv", function (csv) {
         
         var dateFormat = d3.time.format("%m/%d/%Y").parse;
         
@@ -174,6 +194,9 @@
                     .overlayGeoJson(statesJson.features, "state", function (d) {
                         return d.properties.name;
                     })
+                    /*.call(d3.helper.tooltip()
+                        .text(function(d){ return "State: " + d.key + "\nTotal Deaths: " + d.value; })
+                    )*/
                     .title(function (d) {
                         return "State: " + d.key + "\nTotal Deaths: " + d.value;
                     });
@@ -235,8 +258,9 @@
                                 "aaData": tableDateDimension.top(Infinity),
                                 // allCsvData.top(Infinity),
                                 "bDestroy": true,
+                                "aaSorting": [[ 0, "desc" ]],
                                 "aoColumns": [
-                                { "mData": "Date", "sDefaultContent": " " },
+                                { "mData": "Date", "sDefaultContent": " "},
                                 { "mData": "Address", "sDefaultContent": " " },
                                 { "mData": "Description", "sDefaultContent": " " },
                                 { "mData": "Type", "sDefaultContent": " " },
@@ -270,12 +294,9 @@
             })
             
             // title can be called by any stack layer.
-            /*.title(function (d) {
-                //var value = d.value.avg ? d.value.avg : d.value;
-                //if (isNaN(value)) value = 0;
-                return dateFormat(d.key) + "\n" + numberFormat(d.value);
-            });
-            */
+            .title(function (d) {
+                        return "Total Deaths: " + d.value;
+                    });
     
         volumeChart.width(990)
             .height(40)
@@ -317,6 +338,7 @@
             dc.renderAll();
         });
     });
+
 </script>
 
 </body>
