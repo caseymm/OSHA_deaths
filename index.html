@@ -59,20 +59,28 @@
     .sub{
         margin:-10px 0px 0px 0px
     }
+    .table tbody tr.info td {
+        background-color: #e5e1f0;
+    }
+    .table tbody tr.info td:hover {
+        background-color: #d2cae5;
+    }
 </style>
 <body>
 
 <div class="container">
 
-    <div id="us-chart">
-        <h3>OSHA Reported Deaths by State</h3> <p class="sub">(color: total number of deaths)</p>
-        <a class="reset" href="javascript:usChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
-        <span class="reset" style="display: none;"> | Current filter: <span class="filter"></span></span>
-
-        <div class="clearfix"></div>
+    <div class="row">
+        <div id="us-chart">
+            <h3>OSHA Reported Deaths by State</h3> <p class="sub">(color: total number of deaths)</p>
+            <a class="reset" href="javascript:usChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+            <span class="reset" style="display: none;"> | Current filter: <span class="filter"></span></span>
+    
+            <div class="clearfix"></div>
+        </div>
     </div>
     
-    
+    <div class="row">
         <div id="monthly-move-chart">
             <h3>OSHA Reported Deaths by Year</h3>
             <span class="reset" style="display: none;">range: <span class="filter"></span></span>
@@ -81,11 +89,11 @@
     
             <div class="clearfix"></div>
         </div>
+    </div>    
     
     
     <div class="row">
-        <div id="monthly-volume-chart">
-        </div>
+        <div id="monthly-volume-chart"></div>
         <p class="muted pull-right" style="margin-right: 15px;">select a time range to zoom in</p>
     </div>
         
@@ -201,7 +209,7 @@
                         return "State: " + d.key + "\nTotal Deaths: " + d.value;
                     });
         
-        /*dc.dataTable(".dc-data-table")
+        dc.dataTable(".dc-data-table")
             .dimension(tableDateDimension)
             .group(function (d) {
                 var format = d3.format("02d")
@@ -211,7 +219,7 @@
                 return (myDate.getMonth() + 1) + "/" +  format(myDate.getFullYear());
             
             })
-            .size(20) // (optional) max number of records to be shown, :default = 25
+            .size(100) // (optional) max number of records to be shown, :default = 25
             .columns([
                 function (d) {
                     //return d.dd;
@@ -230,11 +238,7 @@
                     return d["Type"];
                 },
                 function (d) {
-                    long_fix = parseFloat(d["Longitude"]) -.9;
-                    lat_fix = parseFloat(d["Latitude"]) - .3;
-                    bumpedView = parseFloat(long_fix + (+1));
-                    bumpedView_b = parseFloat(lat_fix + (+1));
-                    return "<img src='http://maps.googleapis.com/maps/api/staticmap?center=" + d["Latitude"] + "," + d["Longitude"] + "&zoom=4&size=150x75&maptype=roadmap&style=feature:road|visibility:on|color:0xc8c8c6&style=feature:poi|element:geometry|visibility:off&style=feature:road|element:labels.icon|visibility:off&style=element:geometry.stroke|color:0x808080|weight:0.8&style=feature:landscape.natural|visibility:simplified|color:0xececed&markers=size:tiny%7Ccolor:0xBA0D0D%7C" + d["Latitude"] + "," + d["Longitude"] + "&sensor=false' />"
+                    return d["Map"];
                     //return "<div class='image-cropper'><img class='right' src='http://www.mapquestapi.com/staticmap/v4/getmap?size=150,100&zoom=4&type=map&xis=www2.psd100.com%2Fppp%2F2013%2F10%2F0501%2FMap-of-the-red-pushpin-icon-1005121630.png,1,C," + lat_fix + "," + long_fix + ",&scale=6770&center=" + bumpedView_b + "," + bumpedView + "&declutter=true&imagetype=JPEG&projection=sm&key=Fmjtd%7Cluur2qa7nl%2C85%3Do5-9abx5z' /></div><img src='http://maps.googleapis.com/maps/api/staticmap?center=" + d["Latitude"] + "," + d["Longitude"] + "&zoom=4&size=150x75&maptype=roadmap&style=feature:road|visibility:on|color:0xc8c8c6&style=feature:poi|element:geometry|visibility:off&style=feature:road|element:labels.icon|visibility:off&style=element:geometry.stroke|color:0x808080|weight:0.8&style=feature:landscape.natural|visibility:simplified|color:0xececed&markers=size:tiny%7Ccolor:0xBA0D0D%7C" + d["Latitude"] + "," + d["Longitude"] + "&sensor=false' />"
                     }
             ])
@@ -244,8 +248,8 @@
             .order(d3.descending)
             .renderlet(function (table) {
                 table.selectAll(".dc-table-group").classed("info", true);
-            });*/
-        function RefreshTable(alldata) {
+            });
+        /*function RefreshTable(alldata) {
                     datatable.fnClearTable();
                     datatable.fnAddData(alldata);
                     datatable.fnDraw();
@@ -266,7 +270,7 @@
                                 { "mData": "Type", "sDefaultContent": " " },
                                 { "mData": "Map", "sDefaultContent": " " }                                          
                                 ]
-                            });
+                            });*/
             
         moveChart
             .renderArea(true)
@@ -298,7 +302,7 @@
                         return "Total Deaths: " + d.value;
                     });
     
-        volumeChart.width(990)
+       volumeChart.width(990)
             .height(40)
             .margins({top: 0, right: 50, bottom: 20, left: 40})
             .dimension(dateDimension)
@@ -310,7 +314,7 @@
             //.alwaysUseRounding(true)
             //.xUnits(d3.time.months);
         
-        usChart.on("filtered", function (chart) {
+        /*usChart.on("filtered", function (chart) {
         dc.events.trigger(function () {
         alldata = tableDateDimension.top(Infinity);
         RefreshTable(alldata);
@@ -334,7 +338,7 @@
         document.getElementById("testClick").onclick = function (){
         alldata = allCsvData.top(Infinity);
         RefreshTable(alldata);
-        };
+        };*/
             dc.renderAll();
         });
     });
